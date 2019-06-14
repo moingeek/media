@@ -4,7 +4,6 @@ namespace App;
 
 use FFMpeg\FFMpeg;
 use Spatie\Image\Manipulations;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Facades\Image;
 use Spatie\MediaLibrary\Models\Media;
 use Illuminate\Notifications\Notifiable;
@@ -44,6 +43,12 @@ class User extends Authenticatable implements HasMedia
         'email_verified_at' => 'datetime',
     ];
 
+    public function UniqueRandomNumbersWithinRange($min, $max, $quantity) {
+        $numbers = range($min, $max);
+        shuffle($numbers);
+        return array_slice($numbers, 0, $quantity);
+    }
+
     public function registerMediaConversions(Media $media = null)
     {
         //dd($media->mime_type);
@@ -58,22 +63,22 @@ class User extends Authenticatable implements HasMedia
                 ->performOnCollections('media');
 
             //Watermark video
-            $ffmpeg = FFMpeg::create(array(
-                'ffmpeg.binaries' => exec('which ffmpeg'),
-                'ffprobe.binaries' => exec('which ffprobe')
-            ));
-            $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
-            $watermarkPath = '/home/bakbuck-5/Downloads/watermark.png';
-            $video = $ffmpeg->open($filePath);
-            $video
-                ->filters()
-                ->watermark($watermarkPath, array(
-                    'position' => 'relative',
-                    'bottom' => 50,
-                    'right' => 50,
-                ));
-            $format = new FFMpeg\Format\Video\X264();
-            $video->save($format, 'watermarked.mp4');
+            // $ffmpeg = FFMpeg::create(array(
+                // 'ffmpeg.binaries' => exec('which ffmpeg'),
+                // 'ffprobe.binaries' => exec('which ffprobe')
+            // ));
+            // $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
+            // $watermarkPath = '/home/bakbuck-5/Downloads/watermark.png';
+            // $video = $ffmpeg->open($filePath);
+            // $format = new FFMpeg\Format\Video\X264();
+            // $video
+                // ->filters()
+                // ->watermark($watermarkPath, array(
+                    // 'position' => 'relative',
+                    // 'bottom' => 50,
+                    // 'right' => 50,
+                // ));
+            // $video->save($format, 'watermarked.mp4');
         } else {
 
 
@@ -107,15 +112,21 @@ class User extends Authenticatable implements HasMedia
                 ->queued()
                 ->blur(50);
 
-            //Image Pieces for group game
+            //Image Pieces for Group Game
             $full = Image::make($filePath);
             $newImg = $full->resize(600, 600);
             $pieces = 6;
-            for ($i = 0; $i < $pieces; $i++) {
-                $piece = $newImg->crop(100, 50, rand(1, 250), rand(250, 500));
-                $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name), 50);
+            // for ($i = 0; $i < $pieces; $i++) {
+            //     $piece = $newImg->crop(100, 50, rand(1, 250), rand(250, 500));
+            //     $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name), 50);
+            // }
+            for($i= 1 ; $i <= $pieces; $i++){
+                $cropImage = $newImg;
+                $cordinate = $this->UniqueRandomNumbersWithinRange(200,600,4);
+                $piece = $cropImage->crop($cordinate[0],$cordinate[1],$cordinate[2],$cordinate[3]);
+                $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name));
             }
-            $newImg = $full;
         }
     }
+    
 }
