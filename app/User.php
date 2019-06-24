@@ -63,22 +63,22 @@ class User extends Authenticatable implements HasMedia
                 ->performOnCollections('media');
 
             //Watermark video
-            // $ffmpeg = FFMpeg::create(array(
-                // 'ffmpeg.binaries' => exec('which ffmpeg'),
-                // 'ffprobe.binaries' => exec('which ffprobe')
-            // ));
-            // $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
-            // $watermarkPath = '/home/bakbuck-5/Downloads/watermark.png';
-            // $video = $ffmpeg->open($filePath);
-            // $format = new FFMpeg\Format\Video\X264();
-            // $video
-                // ->filters()
-                // ->watermark($watermarkPath, array(
-                    // 'position' => 'relative',
-                    // 'bottom' => 50,
-                    // 'right' => 50,
-                // ));
-            // $video->save($format, 'watermarked.mp4');
+            $ffmpeg = FFMpeg::create(array(
+                'ffmpeg.binaries' => exec('which ffmpeg'),
+                'ffprobe.binaries' => exec('which ffprobe')
+            ));
+            $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
+            $watermarkPath = '/home/bakbuck-5/Downloads/watermark.png';
+            $video = $ffmpeg->open($filePath);
+            $format = new \FFMpeg\Format\Video\X264('libmp3lame', 'libx264');            ;
+            $video
+                ->filters()
+                ->watermark($watermarkPath, array(
+                    'position' => 'relative',
+                    'bottom' => 50,
+                    'right' => 50,
+                ));
+            $video->save($format, 'watermarked.mp4');
         } else {
 
 
@@ -89,7 +89,6 @@ class User extends Authenticatable implements HasMedia
                 ->width(50)
                 ->height(50)
                 ->sharpen(10)
-                ->queued()
                 ->optimize();
 
             //Image with Watermark
