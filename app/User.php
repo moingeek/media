@@ -112,17 +112,15 @@ class User extends Authenticatable implements HasMedia
                 ->blur(50);
 
             //Image Pieces for Group Game
-            $full = Image::make($filePath);
-            $newImg = $full->resize(600, 600);
+            $orgImage = Image::make($filePath);
+            $newImg = $orgImage->resize(600, 600);
             $pieces = 6;
-            // for ($i = 0; $i < $pieces; $i++) {
-            //     $piece = $newImg->crop(100, 50, rand(1, 250), rand(250, 500));
-            //     $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name), 50);
-            // }
+            $positions = ['top-left','top','top-right','left','center','right','bottom-left','bottom','bottom-right'];
+            $position = array_rand($positions);
             for($i= 1 ; $i <= $pieces; $i++){
                 $cropImage = $newImg;
-                $cordinate = $this->UniqueRandomNumbersWithinRange(200,600,4);
-                $piece = $cropImage->crop($cordinate[0],$cordinate[1],$cordinate[2],$cordinate[3]);
+                $cordinate = $this->UniqueRandomNumbersWithinRange(200,600,2);
+                $piece = $cropImage->fit($cordinate[0],$cordinate[1],null,$positions[$position]);
                 $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name));
             }
         }
