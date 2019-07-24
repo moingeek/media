@@ -55,6 +55,8 @@ class User extends Authenticatable implements HasMedia
         if ($media->mime_type == 'video/mp4') {
 
             //Thumbnail Video Creation
+            // $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
+            // exec('ffmpeg -i '.$filePath. '-movflags faststart -acodec -vcodec output.mp4');
             $this->addMediaConversion('thumb')
                 ->width(368)
                 ->height(232)
@@ -68,15 +70,15 @@ class User extends Authenticatable implements HasMedia
                 'ffprobe.binaries' => exec('which ffprobe')
             ));
             $filePath = public_path('storage/' . $media->model_id . '/' . $media->file_name);
-            $watermarkPath = '/home/bakbuck-5/Downloads/watermark.png';
+            $watermarkPath = '/home/bakbuck-5/Downloads/mediumbakbuck.png';
             $video = $ffmpeg->open($filePath);
             $format = new \FFMpeg\Format\Video\X264('libmp3lame', 'libx264');            ;
             $video
                 ->filters()
                 ->watermark($watermarkPath, array(
                     'position' => 'relative',
-                    'bottom' => 50,
-                    'right' => 50,
+                    'top' => 10,
+                    'right' => 10,
                 ));
             $video->save($format, 'watermarked.mp4');
         } else {
@@ -111,19 +113,18 @@ class User extends Authenticatable implements HasMedia
                 ->queued()
                 ->blur(50);
 
-            //Image Pieces for Group Game
-            $orgImage = Image::make($filePath);
-            $newImg = $orgImage->resize(600, 600);
-            $pieces = 6;
-            $positions = ['top-left','top','top-right','left','center','right','bottom-left','bottom','bottom-right'];
-            $position = array_rand($positions);
-            for($i= 1 ; $i <= $pieces; $i++){
-                $cropImage = $newImg;
-                $cordinate = $this->UniqueRandomNumbersWithinRange(200,600,2);
-                $piece = $cropImage->fit($cordinate[0],$cordinate[1],null,$positions[$position]);
-                $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name));
+            // //Image Pieces for Group Game
+            // $orgImage = Image::make($filePath);
+            // $newImg = $orgImage->resize(600, 600);
+            // $pieces = 6;
+            // $positions = ['top-left','top','top-right','left','center','right','bottom-left','bottom','bottom-right'];
+            // $position = array_rand($positions);
+            // for($i= 1 ; $i <= $pieces; $i++){
+            //     $cropImage = $newImg;
+            //     $cordinate = $this->UniqueRandomNumbersWithinRange(150,550,2);
+            //     $piece = $cropImage->resizeCanvas($cordinate[0],$cordinate[1],$positions[$position]);
+            //     $piece->save(public_path('storage/' . $media->model_id . '/' . 'piece-' . $i . '-' . $media->file_name));
             }
         }
-    }
-    
+
 }
